@@ -1,0 +1,11 @@
+﻿  RC4_main.c
+C:\Users\thorb\OneDrive\Uni\Masterarbeit\RC4_C_geringe_GUI_Interaktion\RC4_main.c(14,14): warning C4013: "isspace" undefiniert; Annahme: extern mit Rückgabetyp int
+C:\Users\thorb\OneDrive\Uni\Masterarbeit\RC4_C_geringe_GUI_Interaktion\RC4_main.c(25,35): warning C4047: "Funktion": Anzahl der Dereferenzierungen bei "const char *" und "int" unterschiedlich
+C:\Users\thorb\OneDrive\Uni\Masterarbeit\RC4_C_geringe_GUI_Interaktion\RC4_main.c(25,32): warning C4024: "strtok": unterschiedliche Typen für formalen und übergebenen Parameter 2
+C:\Users\thorb\OneDrive\Uni\Masterarbeit\RC4_C_geringe_GUI_Interaktion\RC4_main.c(31,26): warning C4047: "=": Anzahl der Dereferenzierungen bei "int" und "char *" unterschiedlich
+C:\Users\thorb\OneDrive\Uni\Masterarbeit\RC4_C_geringe_GUI_Interaktion\RC4_main.c(33,27): warning C4047: "Funktion": Anzahl der Dereferenzierungen bei "const char *" und "int" unterschiedlich
+C:\Users\thorb\OneDrive\Uni\Masterarbeit\RC4_C_geringe_GUI_Interaktion\RC4_main.c(33,24): warning C4024: "strtok": unterschiedliche Typen für formalen und übergebenen Parameter 2
+C:\Users\thorb\OneDrive\Uni\Masterarbeit\RC4_C_geringe_GUI_Interaktion\RC4_main.c(10,1): warning C4267: "Initialisierung": Konvertierung von "size_t" nach "int", Datenverlust möglich
+C:\Users\thorb\OneDrive\Uni\Masterarbeit\RC4_C_geringe_GUI_Interaktion\RC4_main.c(21,1): warning C4047: "Initialisierung": Anzahl der Dereferenzierungen bei "int" und "void *" unterschiedlich
+C:\Users\thorb\OneDrive\Uni\Masterarbeit\RC4_C_geringe_GUI_Interaktion\RC4_main.c(25,16): error C4996: 'strtok': This function or variable may be unsafe. Consider using strtok_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Users\thorb\OneDrive\Uni\Masterarbeit\RC4_C_geringe_GUI_Interaktion\RC4_main.c(33,11): error C4996: 'strtok': This function or variable may be unsafe. Consider using strtok_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.

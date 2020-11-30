@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+
+<script type="text/javascript" src="RC4.js"></script>
+
+<script type="text/javascript">
+
+	var key;
+	var plaintext;
+	var ciphertext;
+
+
+	function readKeyFromGUI() {
+		var k = document.getElementById("key_input").value;
+
+		var keyStringArray = k.split(/(\s+)/).filter( e => e.trim().length > 0);
+		var keyIntArray = keyStringArray.map(t => parseInt(t, 10));
+		key = new Uint32Array(keyIntArray);
+	}
+
+	function readAndCreatePlaintext() {
+		var length = document.getElementById("plaintext_length_input").value;
+		plaintext = new Uint32Array(parseInt(length));
+		// Erzeuge einen zufälligen Schlüsseltext
+		for (var i = 0; i < plaintext.length; i++) {
+			plaintext[i] = Math.random() * 255; // Zufällige Werte zwischen 0 und 255.
+		}
+	}
+
+	function encrypt() {
+		ciphertext = rc4(key, plaintext);
+	}
+
+	function printResultToGUI() {
+		// Lese den Geheimtext aus dem Speicher aus.
+		// var result = new Uint32Array(plaintextlength);
+		// /console.log(ciphertext);
+		var output = "";
+		var bytesToOutput = Math.min(16, ciphertext.length);
+		for (var i = 0; i < bytesToOutput; i++) {
+			output += ciphertext[i].toString(16).toUpperCase() + " ";
+		}
+		document.getElementById("output").innerHTML = output;
+	}
+
+	function doIt() {
+		var time1 = performance.now();
+		readKeyFromGUI();
+		var time2 = performance.now();
+		readAndCreatePlaintext();
+		var time3 = performance.now();
+		encrypt();
+		var time4 = performance.now();
+		printResultToGUI();
+		var time5 = performance.now();
+
+
+		document.getElementById("time12").innerHTML = (time2 - time1) + " ms";
+		document.getElementById("time23").innerHTML = (time3 - time2) + " ms";
+		document.getElementById("time34").innerHTML = (time4 - time3) + " ms";
+		document.getElementById("time45").innerHTML = (time5 - time4) + " ms";
+
+	}
+</script>
+
+</head>
+
+	<body>
+	<h1>RC4 Implementierung mit JS und geringer GUI-Interaktion</h1>
+	<h3>Bedienungsanleitung</h3>
+	<p>1. Den Schlüssel als Hexwerte eingeben. Die einzelnen Bytes werden mit
+	einem Leerzeichen getrennt: Beispiel: 01 02 03 04 05</p>
+
+	<p>2. Die Länge des zu verschlüsselnden Textes auswählen. Die Länge wird in Byte
+	angegeben.</p>
+
+	<p>3. Auf verschlüsseln drücken und die Ausführungszeiten in der Tabelle betrachten.</p>
+	</br>
+
+	<h3>Parametereingabe</h3>
+
+
+	<form>
+	<p>Schlüssel (1 Byte Hex Werte, Leerzeichen separiert)</br>
+	<textarea id="key_input" rows="3" cols="50">01 02 03 04 05</textarea></p>
+
+	<p>Klartextlänge in Byte</br>
+	<input type="number" id="plaintext_length_input" value="134217728" min="0"></p>
+
+	<div style="color: gray; " id="PlainHexRepresentation"></div>
+
+	<input type="button" id="btn_encrypt" value="Ver-/Entschlüsseln" onclick="doIt()">
+	</form>
+	<br>
+
+	<h3>Ausgabe</h3>
+<table border="1">
+  <tr>
+    <th>Ausgeführte Aufgabe</th>
+    <th>benötigte Zeit</th>
+  </tr>
+  <tr>
+    <td>Schlüssel einlesen und konvertieren</td>
+	<td id="time12" style="background-color:yellow"></div></td>
+   </tr>
+	<tr>
+		<td>Zufälligen Klartext erzeugen</td>
+		<td id="time23" style="background-color:yellow"></td>
+	</tr>
+	<tr>
+		<td>Text in JavaScript verschlüsseln</td>
+		<td id="time34" style="background-color:yellow"></td>
+	</tr>
+	<tr>
+		<td>Ergebniss in GUI ausgeben</td>
+		<td id="time45" style="background-color:yellow"></td>
+	</tr>
+</table>
+
+	<p>Die ersten 16 Bytes des Geheimtextes:</p>
+	<div id="output" style="background-color:yellow"></div>
+	<p>Der komplette Geheimtext wird bewusst nicht ausgegeben,
+	da er hier nicht von Interesse ist. Er dient nur der Überprüfung der Ergebnisse.</p>
+
+	</body>
+</html>

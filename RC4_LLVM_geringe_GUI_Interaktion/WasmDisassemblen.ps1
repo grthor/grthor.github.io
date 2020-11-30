@@ -1,0 +1,1 @@
+C:\Users\thorb\emsdk\upstream\bin\wasm-dis.exe .\RC4C_ohne_include.wasm -o .\RC4C_ohne_include.wat

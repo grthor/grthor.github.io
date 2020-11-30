@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+
+<script type="text/javascript">
+
+	// Variable for the wasm instance.
+	var wasmObj;
+	// Initial memory of 256 pages = 16384 kb = 16777216 Byte
+	// Max memory of 16384 pages = 1gb = 1073741824 Byte
+	var mymemory = new WebAssembly.Memory(
+		{
+			initial:256,
+			maximum:32768
+		}
+	);
+
+	var buffer = new Uint32Array(mymemory.buffer);
+
+	// 256 Pages. 1 page a 64kib
+	var importObject = {
+		env: {
+			memory: mymemory
+		}
+	};
+
+	var key;
+	var keylength;
+	var plaintext;
+	var plaintextlength;
+	var ciphertext;
+
+
+	init();
+
+	async function init() {
+		// Laden der WebAssembly-Instanz
+		// Geschieht in async function, da ansonsten await nicht zur Verfügung steht.
+		wasmObj = await WebAssembly.instantiateStreaming(fetch('RC4C_ohne_include.wasm'),importObject);
+	}
+
+
+	function readKeyFromGUI() {
+		var k = document.getElementById("key_input").value;
+
+		var keyStringArray = k.split(/(\s+)/).filter( e => e.trim().length > 0);
+		var keyIntArray = keyStringArray.map(t => parseInt(t, 10));
+		key = 0;
+		keylength = keyIntArray.length;
+		for (var i = 0; i < keylength; i++) {
+			buffer[i] = keyIntArray[i];
+		}
+	}
+
+	function readAndCreatePlaintext() {
+		var length = document.getElementById("plaintext_length_input").value;
+		plaintextlength = parseInt(length);
+
+		var requiredMemoryInBytes = keylength * 4 + plaintextlength * 2 * 4;
+		var availableMemoryInBytes = buffer.byteLength;
+		// Check if there is enough available memory
+		if (requiredMemoryInBytes > availableMemoryInBytes) {
+			// The available memory is not enough.
+			// Grow the memory.
+			var difference = requiredMemoryInBytes - availableMemoryInBytes;
+			var additionalPages = Math.ceil(difference / 65536);
+
+			console.log("Buffer Size in Pages (64kib) " + mymemory.buffer.byteLength / 65536);
+			console.log("Additional pages " + additionalPages);
+			mymemory.grow(additionalPages);
+			console.log("New Buffer Size in Pages (64 kib) " + mymemory.buffer.byteLength / 65536);
+
+
+			// Buffer Array Vergrößern
+			buffer = new Uint32Array(mymemory.buffer);
+
+		}
+		// plaintext = new Uint32Array(plaintextlength);
+		// Erzeuge einen zufälligen Schlüsseltext
+		plaintext = keylength;
+		for (var i = plaintext; i < plaintextlength + plaintext; i++) {
+			// plaintext[i] = Math.random() * 255; // Zufällige Werte zwischen 0 und 255.
+			buffer[i] = Math.random() * 255; // Zufällige Werte zwischen 0 und 255.
+		}
+	}
+
+	function encrypt() {
+		ciphertext = plaintext + plaintextlength;
+		wasmObj.instance.exports.rc4(key * 4, keylength, plaintext * 4, plaintextlength, ciphertext * 4);
+	}
+
+
+	function printResultToGUI() {
+		// Lese den Geheimtext aus dem Speicher aus.
+		var output = "";
+		var bytesToOutput = Math.min(16, plaintextlength);
+		for (var i = ciphertext; i < ciphertext + bytesToOutput; i++) {
+			output += buffer[i].toString(16).toUpperCase() + " ";
+		}
+		document.getElementById("output").innerHTML = output;
+	}
+
+	function doIt() {
+		var time1 = performance.now();
+		readKeyFromGUI();
+		var time2 = performance.now();
+		readAndCreatePlaintext();
+		var time3 = performance.now();
+		encrypt();
+		var time4 = performance.now();
+		printResultToGUI();
+		var time5 = performance.now();
+
+
+		document.getElementById("time12").innerHTML = (time2 - time1) + " ms";
+		document.getElementById("time23").innerHTML = (time3 - time2) + " ms";
+		document.getElementById("time34").innerHTML = (time4 - time3) + " ms";
+		document.getElementById("time45").innerHTML = (time5 - time4) + " ms";
+
+	}
+</script>
+
+</head>
+
+	<body>
+	<h1>RC4 Implementierung mit LLVM WebAssembly und geringer GUI-Interaktion</h1>
+	<h3>Bedienungsanleitung</h3>
+	<p>1. Den Schlüssel als Hexwerte eingeben. Die einzelnen Bytes werden mit
+	einem Leerzeichen getrennt: Beispiel: 01 02 03 04 05</p>
+
+	<p>2. Die Länge des zu verschlüsselnden Textes auswählen. Die Länge wird in Byte
+	angegeben.</p>
+
+	<p>3. Auf verschlüsseln drücken und die Ausführungszeiten in der Tabelle betrachten.</p>
+	</br>
+
+	<h3>Parametereingabe</h3>
+
+
+	<form>
+	<p>Schlüssel (1 Byte Hex Werte, Leerzeichen separiert)</br>
+	<textarea id="key_input" rows="3" cols="50">01 02 03 04 05</textarea></p>
+
+	<p>Klartextlänge in Byte</br>
+	<input type="number" id="plaintext_length_input" value="134217728" min="0"></p>
+
+	<div style="color: gray; " id="PlainHexRepresentation"></div>
+
+	<input type="button" id="btn_encrypt" value="Ver-/Entschlüsseln" onclick="doIt()">
+	</form>
+	<br>
+
+	<h3>Ausgabe</h3>
+<table border="1">
+  <tr>
+    <th>Ausgeführte Aufgabe</th>
+    <th>benötigte Zeit</th>
+  </tr>
+  <tr>
+    <td>Schlüssel einlesen und konvertieren</td>
+	<td id="time12" style="background-color:yellow"></div></td>
+   </tr>
+	<tr>
+		<td>Zufälligen Klartext erzeugen</td>
+		<td id="time23" style="background-color:yellow"></td>
+	</tr>
+	<tr>
+		<td>Text verschlüsseln</td>
+		<td id="time34" style="background-color:yellow"></td>
+	</tr>
+	<tr>
+		<td>Ergebniss in GUI ausgeben</td>
+		<td id="time45" style="background-color:yellow"></td>
+	</tr>
+</table>
+
+	<p>Die ersten 16 Bytes des Geheimtextes:</p>
+	<div id="output" style="background-color:yellow"></div>
+	<p>Der komplette Geheimtext wird bewusst nicht ausgegeben,
+	da er hier nicht von Interesse ist. Er dient nur der Überprüfung der Ergebnisse.</p>
+
+	</body>
+</html>
