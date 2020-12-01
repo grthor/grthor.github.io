@@ -40,7 +40,6 @@
 
 		}
 		Module.HEAP32.set(tempPlaintext, plaintext / 4);
-		// console.log(Module.HEAP32);
 	}
 
 	function encrypt() {
@@ -68,26 +67,19 @@
 		// Speicher freigeben
 		Module._free(key);
 		Module._free(plaintext);
-		//Module._free(ciphertextbuf);
 	}
 
 
 	function printResultToGUI() {
 		// Lese den Geheimtext aus dem Speicher aus.
-		// var result = new Uint32Array(plaintextlength);
-		// /console.log(ciphertext);
 		var output = "";
-		var bytesToOutput = Math.min(16, ciphertext.length);
+		var bytesToOutput = Math.min(16, plaintextlength);
+		var outputArray = new Uint32Array(Module.HEAPU32.buffer, ciphertext, bytesToOutput);
 		for (var i = 0; i < bytesToOutput; i++) {
-			//output += ciphertext[i].toString(16).toUpperCase() + " ";
-			output += Module.HEAPU32.get((ciphertext / 4) + i);
-			//output += ciphertext[i].toString(16).toUpperCase() + " ";
+			output += outputArray[i].toString(16).toUpperCase() + " ";
 		}
 		document.getElementById("output").innerHTML = output;
-
-
 		Module._free(ciphertext);
-
 	}
 
 	function doIt() {
@@ -138,7 +130,7 @@
 	<textarea id="key_input" rows="3" cols="50">01 02 03 04 05</textarea></p>
 
 	<p>Klartextlänge in Byte (Standard 128 Mebibyte). <span style="color:grey">Intern wird jedes Byte
-	als uint32 verarbeitet. Der Klartext benötigt also viermal so viel Speicher (512 Mebibity)
+	als uint32 verarbeitet. Der Klartext benötigt also viermal so viel Speicher (512 Mebibyte)
 	wie der Wert den man eingibt.</span></br>
 	<input type="number" id="plaintext_length_input" value="134217728" min="0"></p>
 
@@ -152,7 +144,7 @@
 	<input type="button" style="background-color:lightgreen" id="btn_encrypt" value="Ver-/Entschlüsseln" onclick="doIt()">
 	<span style="color:grey">
 		Für vergleichbare Ergebnisse nach jedem Ver-/Entschlüsseln die Seite neu laden. Ansonsten wird
-		Speicher wiederverwendet was die Lauzeit künstlich beschleunigt. Die Ergebnisse sind trotzdem korrekt.
+		Speicher wiederverwendet, was die Laufzeit künstlich beschleunigt. Die Ergebnisse sind trotzdem korrekt.
 	</span>
 	</form>
 
@@ -179,13 +171,13 @@
 		<td id="time34" style="background-color:yellow"></td>
 	</tr>
 	<tr>
-		<td>Ergebniss in GUI ausgeben</td>
+		<td>Ergebnis in GUI ausgeben</td>
 		<td>JavaScript</td>
 		<td id="time45" style="background-color:yellow"></td>
 	</tr>
 </table>
 
-	<p>Die ersten 16 Bytes des Geheimtextes:</p>
+	<p>Die ersten Bytes des Geheimtextes:</p>
 	<div id="output" style="background-color:yellow"></div>
 	<p style="color:grey">Der komplette Geheimtext wird bewusst nicht ausgegeben,
 	da er hier nicht von Interesse ist. Er dient nur der Überprüfung der Ergebnisse.</p>
