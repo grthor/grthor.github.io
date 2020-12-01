@@ -21,45 +21,53 @@
 		var keyStringArray = k.split(/(\s+)/).filter( e => e.trim().length > 0);
 		var keyIntArray = keyStringArray.map(t => parseInt(t, 10));
 		keylength = keyIntArray.length;
-		key = new Uint32Array(keyIntArray);
+		// Allocate memory for the heap
+		key = Module._malloc(keylength * 4);
+		// Write the key to the heap.
+		Module.HEAPU32.set(keyIntArray, key / 4);
 	}
 
 	function readAndCreatePlaintext() {
 		var length = document.getElementById("plaintext_length_input").value;
 		plaintextlength = parseInt(length);
-		plaintext = new Uint32Array(plaintextlength);
-
+		var tempPlaintext = new Uint32Array(plaintextlength);
+		plaintext = Module._malloc(plaintextlength * 4);
 		// Erzeuge einen zufälligen Schlüsseltext
 		for (var i = 0; i < plaintextlength; i++) {
-			plaintext[i] = Math.random() * 255; // Zufällige Werte zwischen 0 und 255.
+			// plaintext[i] = Math.random() * 255; // Zufällige Werte zwischen 0 und 255.
+			//Module.HEAP32.set((Math.random() * 255), (plaintext + (i * 4)) / 4);
+			tempPlaintext[i] = Math.random() * 255; // Zufällige Werte zwischen 0 und 255.
+
 		}
+		Module.HEAP32.set(tempPlaintext, plaintext / 4);
+		// console.log(Module.HEAP32);
 	}
 
 	function encrypt() {
 
-		ciphertext = new Uint32Array(plaintextlength);
+		// ciphertext = new Uint32Array(plaintextlength);
 
-		// Alloziere den Speicher für den Schlüssel, Klartext und Geheimtext.
-		var keybuf = Module._malloc(key.length * key.BYTES_PER_ELEMENT);
-		var plaintextbuf = Module._malloc(plaintext.length * plaintext.BYTES_PER_ELEMENT);
+		// Allokiere den Speicher für den Schlüssel, Klartext und Geheimtext.
+		//var keybuf = Module._malloc(key.length * key.BYTES_PER_ELEMENT);
+		//var plaintextbuf = Module._malloc(plaintext.length * plaintext.BYTES_PER_ELEMENT);
 		// var ciphertextbuf = Module._malloc(ciphertext.length * ciphertext.BYTES_PER_ELEMENT);
-		ciphertext = Module._malloc(ciphertext.length * ciphertext.BYTES_PER_ELEMENT);
+		ciphertext = Module._malloc(plaintextlength * 4);
 
-		// Setzte Schlüssel, Klartext und Geheimtext in den alloziierten Speicher.
-		Module.HEAPU32.set(key, keybuf / key.BYTES_PER_ELEMENT);
-		Module.HEAPU32.set(plaintext, plaintextbuf / plaintext.BYTES_PER_ELEMENT);
+		// Setzte Schlüssel, Klartext und Geheimtext in den allokierten Speicher.
+		// Module.HEAPU32.set(key, keybuf / key.BYTES_PER_ELEMENT);
+		// Module.HEAPU32.set(plaintext, plaintextbuf / plaintext.BYTES_PER_ELEMENT);
 		//Module.HEAPU32.set(ciphertext, ciphertextbuf / ciphertext.BYTES_PER_ELEMENT);
 
 		// Rufe die Verschlüsselung auf.
-		Module.ccall('rc4', null, ['number', 'number', 'number', 'number', 'number'], [keybuf, keylength, plaintextbuf, plaintextlength, ciphertextbuf]);
+		Module.ccall('rc4', null, ['number', 'number', 'number', 'number', 'number'], [key, keylength, plaintext, plaintextlength, ciphertext]);
 
 		// Lese den Geheimtext aus dem Speicher aus.
 		//var pos = ciphertextbuf / ciphertext.BYTES_PER_ELEMENT;
 		//ciphertext.set(Module.HEAPU32.subarray(pos, pos + plaintextlength));
 
 		// Speicher freigeben
-		Module._free(keybuf);
-		Module._free(plaintextbuf);
+		Module._free(key);
+		Module._free(plaintext);
 		//Module._free(ciphertextbuf);
 	}
 
@@ -72,12 +80,13 @@
 		var bytesToOutput = Math.min(16, ciphertext.length);
 		for (var i = 0; i < bytesToOutput; i++) {
 			//output += ciphertext[i].toString(16).toUpperCase() + " ";
-			Module.HEAPU32.get
+			output += Module.HEAPU32.get((ciphertext / 4) + i);
+			//output += ciphertext[i].toString(16).toUpperCase() + " ";
 		}
 		document.getElementById("output").innerHTML = output;
 
 
-Module._free(ciphertextbuf);
+		Module._free(ciphertext);
 
 	}
 
@@ -104,60 +113,81 @@ Module._free(ciphertextbuf);
 </head>
 
 	<body>
-	<h1>RC4 Implementierung mit WebAssembly und geringer GUI-Interaktion</h1>
+	<h1>RC4 Implementierung mit Emscripten-WebAssembly und geringer GUI-Interaktion</h1>
 	<h3>Bedienungsanleitung</h3>
-	1. Den Schlüssel als Hexwerte eingeben. Die einzelnen Bytes werden mit
-	einem Leerzeichen getrennt: Beispiel: 01 02 03 04 05<br />
-
-	2. Die Länge des zu verschlüsselnden Textes auswählen. Die Länge wird in Byte
-	angegeben.<br />
-
-	3. Auf verschlüsseln drücken und die Ausführungszeiten in der Tabelle betrachten.<br />
-	</br>
+	<p>
+		Für schnelle Ergebnisse auf den grünen Button "Ver-/Entschlüsseln" klicken.
+		Die Standardwerte sind korrekt eingestellt.
+	</p>
+	<p style="color:grey">
+		1. Den Schlüssel als Hexwerte eingeben. Die einzelnen Bytes werden mit
+		einem Leerzeichen getrennt: Beispiel: 01 02 03 04 05
+		<br />
+		2. Die Länge des zu verschlüsselnden Textes auswählen. Die Länge wird in Byte
+		angegeben.
+		<br />
+		3. Auf verschlüsseln drücken und die Ausführungszeiten in der Tabelle betrachten.
+	</p>
 
 	<h3>Parametereingabe</h3>
 
-
 	<form>
-	<p>Schlüssel (1 Byte Hex Werte, Leerzeichen separiert)</br>
+	<p>Schlüssel (1 Byte Hex Werte, Leerzeichen separiert). <span style="color:grey">Intern wird jedes Byte
+	als uint32 verarbeitet. Der Schlüssel benötigt also viermal so viel Speicherplatz
+	wie hier angegeben.</span><br />
 	<textarea id="key_input" rows="3" cols="50">01 02 03 04 05</textarea></p>
 
-	<p>Klartextlänge in Byte</br>
+	<p>Klartextlänge in Byte (Standard 128 Mebibyte). <span style="color:grey">Intern wird jedes Byte
+	als uint32 verarbeitet. Der Klartext benötigt also viermal so viel Speicher (512 Mebibity)
+	wie der Wert den man eingibt.</span></br>
 	<input type="number" id="plaintext_length_input" value="134217728" min="0"></p>
 
 	<div style="color: gray; " id="PlainHexRepresentation"></div>
 
-	<input type="button" id="btn_encrypt" value="Ver-/Entschlüsseln" onclick="doIt()">
+	<span style="color:red">Die Seite blockiert nach dem Aufruf der Verschlüsselung.
+		Mit den Standardwerten sind Wartezeiten von bis zu 15 Sekunden normal.
+	</span>
+	<br />
+
+	<input type="button" style="background-color:lightgreen" id="btn_encrypt" value="Ver-/Entschlüsseln" onclick="doIt()">
+	<span style="color:grey">
+		Für vergleichbare Ergebnisse nach jedem Ver-/Entschlüsseln die Seite neu laden. Ansonsten wird
+		Speicher wiederverwendet was die Lauzeit künstlich beschleunigt. Die Ergebnisse sind trotzdem korrekt.
+	</span>
 	</form>
-	<br>
 
 	<h3>Ausgabe</h3>
 <table border="1">
   <tr>
     <th>Ausgeführte Aufgabe</th>
+		<th>Umgebung</th>
     <th>benötigte Zeit</th>
   </tr>
   <tr>
     <td>Schlüssel einlesen und konvertieren</td>
+		<td>JavaScript</td>
 	<td id="time12" style="background-color:yellow"></div></td>
    </tr>
 	<tr>
 		<td>Zufälligen Klartext erzeugen</td>
+		<td>JavaScript</td>
 		<td id="time23" style="background-color:yellow"></td>
 	</tr>
 	<tr>
-		<td>Text in WebAssembly verschlüsseln</td>
+		<td>Text verschlüsseln</td>
+		<td>Emscripten-WebAssembly</td>
 		<td id="time34" style="background-color:yellow"></td>
 	</tr>
 	<tr>
 		<td>Ergebniss in GUI ausgeben</td>
+		<td>JavaScript</td>
 		<td id="time45" style="background-color:yellow"></td>
 	</tr>
 </table>
 
 	<p>Die ersten 16 Bytes des Geheimtextes:</p>
 	<div id="output" style="background-color:yellow"></div>
-	<p>Der komplette Geheimtext wird bewusst nicht ausgegeben,
+	<p style="color:grey">Der komplette Geheimtext wird bewusst nicht ausgegeben,
 	da er hier nicht von Interesse ist. Er dient nur der Überprüfung der Ergebnisse.</p>
 
 	</body>
