@@ -22,23 +22,40 @@
 	// 256 Pages. 1 page a 64kib
 	var importObject = {
 		env: {
-			memory: mymemory
+			memory: mymemory,
+			printToGUI: value => showNumberInGUI(value)
 		}
 	};
 
+	// Pointer auf das erste Element des Schlüssels im Heap
 	var key;
+	// Länge des Schlüssels
 	var keylength;
+	// Pointer auf das erste Element des Klartextes im Heap
 	var plaintext;
+	// Länge des Klartextes
 	var plaintextlength;
+	// Uint32Array in dem die Ausgabe des Algorithmus gespeichert wird.
 	var ciphertext;
+	// Zähler der genutzt wird, die Elemente an der richtigen Stelle
+	// im Ausgabe Array zu speichern.
+	var outputElementCounter = 0;
 
-
+	// lade das WebAssembly Modul
 	init();
 
 	async function init() {
-		// Laden der WebAssembly-Instanz
+		// Laden und isntantiieren der WebAssembly-Instanz
 		// Geschieht in async function, da ansonsten await nicht zur Verfügung steht.
 		wasmObj = await WebAssembly.instantiateStreaming(fetch('RC4C_ohne_include.wasm'),importObject);
+	}
+
+
+	function showNumberInGUI(number) {
+		ciphertext[outputElementCounter] = number;
+		outputElementCounter++;
+		//ciphertext.push(number);
+		//document.getElementById("output").innerHTML = number.toString(16).toUpperCase() + " ";
 	}
 
 
@@ -87,8 +104,10 @@
 	}
 
 	function encrypt() {
-		ciphertext = plaintext + plaintextlength;
-		wasmObj.instance.exports.rc4(key * 4, keylength, plaintext * 4, plaintextlength, ciphertext * 4);
+		//ciphertext = plaintext + plaintextlength;
+		//ciphertext
+		ciphertext = new Uint32Array(plaintextlength);
+		wasmObj.instance.exports.rc4(key * 4, keylength, plaintext * 4, plaintextlength);
 	}
 
 
@@ -96,13 +115,16 @@
 		// Lese den Geheimtext aus dem Speicher aus.
 		var output = "";
 		var bytesToOutput = Math.min(16, plaintextlength);
-		for (var i = ciphertext; i < ciphertext + bytesToOutput; i++) {
-			output += buffer[i].toString(16).toUpperCase() + " ";
+		for (var i = 0; i < bytesToOutput; i++) {
+			output += ciphertext[i].toString(16).toUpperCase() + " ";
 		}
 		document.getElementById("output").innerHTML = output;
 	}
 
 	function doIt() {
+		// Reset the counter to 0. Needed when multiple encryptions are done.
+		outputElementCounter = 0;
+
 		var time1 = performance.now();
 		readKeyFromGUI();
 		var time2 = performance.now();
@@ -125,7 +147,7 @@
 </head>
 
 	<body>
-	<h2>RC4 Implementierung mit Clang-LLVM-WebAssembly und geringer GUI-Interaktion</h2>
+	<h2>RC4 Implementierung mit Clang-LLVM-WebAssembly und hoher GUI-Interaktion</h2>
 	<h3>Bedienungsanleitung</h3>
 	<p>
 		Für schnelle Ergebnisse auf den grünen Button "Ver-/Entschlüsseln" klicken.
