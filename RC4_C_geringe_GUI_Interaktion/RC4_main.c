@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
 	// Zähle die Anzahl an Bytes im Schlüssel
 	size_t inputlength = strlen(argv[2]);
 	int spaceCounter = 0;
-	for (int i = 0; i < inputlength; i++) {
+	for (unsigned int i = 0; i < inputlength; i++) {
 		if (isspace(argv[2][i])) {
 			spaceCounter++;
 		}
@@ -79,7 +79,7 @@ int main(int argc, char* argv[]) {
 	printf("%d ms", time3 - time2);
 	printf("%s", "\nText verschluesseln\t\t\t");
 	printf("%d ms", time4 - time3);
-	printf("%s", "\nErgebniss in GUI ausgeben\t\t");
+	printf("%s", "\nErgebnis in GUI ausgeben\t\t");
 	printf("%d ms", time5 - time4);
 
 

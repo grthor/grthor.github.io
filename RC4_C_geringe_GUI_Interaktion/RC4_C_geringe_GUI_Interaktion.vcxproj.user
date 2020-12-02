@@ -9,11 +9,11 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>8388608 "01 02 03 04 05"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>134217728 "01 02 03 04 05"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>8388608 "01 02 03 04 05"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>134217728 "01 02 03 04 05"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

@@ -1,8 +1,7 @@
-clang -O3 --target=wasm32 --no-standard-libraries -Wl,--export-all -Wl,--no-entry -Wl,--import-memory -o RC4C_ohne_include.wasm RC4C_ohne_include.c -Wl,--allow-undefined
+clang -O3 --target=wasm32 --no-standard-libraries -Wl,--export-all -Wl,--no-entry -Wl,--import-memory -o RC4C_ohne_include.wasm RC4C_ohne_include.c
 
 --target=wasm32 // Zielarchitektur ist WebAssembly, nicht wasi oder sonst was
 --no-standard-libraries // Verwende nicht die libc Bibliothek, da sie nicht für wasm kompiliert ist. 
 -Wl,--export-all // -Wl pusht Argumente zum Linker, --Exportiert alle Funktionen. 
 -Wl,--no-entry // Schaut nicht nach, ob es eine main-Methode gibt. Ohne dieses Argument werden alle nicht benötigten Funktionen weggekürzt
 -Wl,--import-memory // ? Speicher wird in JS erzeugt über memory objekt und das wird dann genutzt.
--Wl,--allow-undefined // erlaub nicht deklarierte Symbole (meistens Funktionen) im Code. Genutzt für import von Funktionen aus JS in Wasm.
