@@ -1,0 +1,17 @@
+# Ignore all
+*
+
+#Except of:
+!.gitignore
+!*.js
+!*.wasm
+!*.wat
+!*.ps1
+!*.c
+!*.html
+!*.sln
+!*.vcxproj
+!*.filters
+!*.user
+!*.exe
+!*.txt
