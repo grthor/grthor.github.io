@@ -1,8 +1,0 @@
-﻿  RC4_main.c
-C:\Users\thorb\git\grthor.github.io\RC4_C_geringe_GUI_Interaktion\RC4_main.c(91,15): warning C4244: "Funktion": Konvertierung von "time_t" in "unsigned int", möglicher Datenverlust
-  Code wird generiert.
-  1 of 6 functions (16.7%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
-  Codegenerierung ist abgeschlossen.
-  RC4_C_geringe_GUI_Interaktion.vcxproj -> C:\Users\thorb\git\grthor.github.io\RC4_C_geringe_GUI_Interaktion\x64\Release\RC4_C_geringe_GUI_Interaktion.exe
