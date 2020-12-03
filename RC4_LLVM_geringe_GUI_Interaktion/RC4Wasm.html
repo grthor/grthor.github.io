@@ -3,28 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <title>Clang-LLVM WebAssembly</title>
-
+<script type="text/javascript" src="GlueCode.js"></script>
 <script type="text/javascript">
 
 	// Variable for the wasm instance.
 	var wasmObj;
-	// Initial memory of 256 pages = 16384 kb = 16777216 Byte
-	// Max memory of 16384 pages = 1gb = 1073741824 Byte
-	var mymemory = new WebAssembly.Memory(
-		{
-			initial:256,
-			maximum:32768
-		}
-	);
-
-	var buffer = new Uint32Array(mymemory.buffer);
-
-	// 256 Pages. 1 page a 64kib
-	var importObject = {
-		env: {
-			memory: mymemory
-		}
-	};
+	var buffer;
 
 	var key;
 	var keylength;
@@ -32,13 +16,15 @@
 	var plaintextlength;
 	var ciphertext;
 
-
+	// Load wasm module at startup
 	init();
 
 	async function init() {
 		// Laden der WebAssembly-Instanz
 		// Geschieht in async function, da ansonsten await nicht zur Verfügung steht.
-		wasmObj = await WebAssembly.instantiateStreaming(fetch('RC4C_ohne_include.wasm'),importObject);
+		//wasmObj = await WebAssembly.instantiateStreaming(fetch('RC4C_ohne_include.wasm'),importObject);
+		wasmObj = await initializeWebAssembly();
+		buffer = new Uint32Array(getBuffer());
 	}
 
 
@@ -69,12 +55,14 @@
 
 			//console.log("Buffer Size in Pages (64kib) " + mymemory.buffer.byteLength / 65536);
 			//console.log("Additional pages " + additionalPages);
-			mymemory.grow(additionalPages);
+			//mymemory.grow(additionalPages);
+			growMemory(additionalPages);
 			//console.log("New Buffer Size in Pages (64 kib) " + mymemory.buffer.byteLength / 65536);
 
 
 			// Buffer Array Vergrößern
-			buffer = new Uint32Array(mymemory.buffer);
+			// buffer = new Uint32Array(mymemory.buffer);
+			buffer = new Uint32Array(getBuffer());
 
 		}
 		// plaintext = new Uint32Array(plaintextlength);
