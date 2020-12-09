@@ -4,15 +4,28 @@
 <meta charset="UTF-8">
 <title>Emscripten WebAssembly</title>
 
+<script async type="text/javascript" src="myLibrary.js"></script>
+
 <script src="a.out.js"></script>
 
 <script type="text/javascript">
+
 
 	var key;
 	var keylength;
 	var plaintext;
 	var plaintextlength;
 	var ciphertext;
+
+	// Zähler der genutzt wird, die Elemente an der richtigen Stelle
+	// im Ausgabe Array zu speichern.
+	var outputElementCounter = 0;
+
+	function showNumberInGUI(number) {
+		// ciphertext.push(number);
+		ciphertext[outputElementCounter] = number;
+		outputElementCounter++;
+	}
 
 
 	function readKeyFromGUI() {
@@ -50,15 +63,16 @@
 		//var keybuf = Module._malloc(key.length * key.BYTES_PER_ELEMENT);
 		//var plaintextbuf = Module._malloc(plaintext.length * plaintext.BYTES_PER_ELEMENT);
 		// var ciphertextbuf = Module._malloc(ciphertext.length * ciphertext.BYTES_PER_ELEMENT);
-		ciphertext = Module._malloc(plaintextlength * 4);
+		//ciphertext = Module._malloc(plaintextlength * 4);
 
 		// Setzte Schlüssel, Klartext und Geheimtext in den allokierten Speicher.
 		// Module.HEAPU32.set(key, keybuf / key.BYTES_PER_ELEMENT);
 		// Module.HEAPU32.set(plaintext, plaintextbuf / plaintext.BYTES_PER_ELEMENT);
 		//Module.HEAPU32.set(ciphertext, ciphertextbuf / ciphertext.BYTES_PER_ELEMENT);
 
+		ciphertext = new Uint32Array(plaintextlength);
 		// Rufe die Verschlüsselung auf.
-		Module.ccall('rc4', null, ['number', 'number', 'number', 'number', 'number'], [key, keylength, plaintext, plaintextlength, ciphertext]);
+		Module.ccall('rc4', null, ['number', 'number', 'number', 'number'], [key, keylength, plaintext, plaintextlength]);
 
 		// Lese den Geheimtext aus dem Speicher aus.
 		//var pos = ciphertextbuf / ciphertext.BYTES_PER_ELEMENT;
@@ -74,15 +88,18 @@
 		// Lese den Geheimtext aus dem Speicher aus.
 		var output = "";
 		var bytesToOutput = Math.min(16, plaintextlength);
-		var outputArray = new Uint32Array(Module.HEAPU32.buffer, ciphertext, bytesToOutput);
+		//var outputArray = new Uint32Array(Module.HEAPU32.buffer, ciphertext, bytesToOutput);
 		for (var i = 0; i < bytesToOutput; i++) {
-			output += outputArray[i].toString(16).toUpperCase() + " ";
+			output += ciphertext[i].toString(16).toUpperCase() + " ";
 		}
 		document.getElementById("output").innerHTML = output;
-		Module._free(ciphertext);
+		//Module._free(ciphertext);
 	}
 
 	function doIt() {
+
+		outputElementCounter = 0;
+
 		var time1 = performance.now();
 		readKeyFromGUI();
 		var time2 = performance.now();
