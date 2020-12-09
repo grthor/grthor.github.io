@@ -125,10 +125,10 @@
 		var time5 = performance.now();
 
 
-		document.getElementById("time12").innerHTML = (time2 - time1) + " ms";
-		document.getElementById("time23").innerHTML = (time3 - time2) + " ms";
-		document.getElementById("time34").innerHTML = (time4 - time3) + " ms";
-		document.getElementById("time45").innerHTML = (time5 - time4) + " ms";
+		document.getElementById("time12").innerHTML = Math.round((time2 - time1)) + " ms";
+		document.getElementById("time23").innerHTML = Math.round((time3 - time2)) + " ms";
+		document.getElementById("time34").innerHTML = Math.round((time4 - time3)) + " ms";
+		document.getElementById("time45").innerHTML = Math.round((time5 - time4)) + " ms";
 
 	}
 </script>

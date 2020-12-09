@@ -57,26 +57,11 @@
 
 	function encrypt() {
 
-		// ciphertext = new Uint32Array(plaintextlength);
-
-		// Allokiere den Speicher für den Schlüssel, Klartext und Geheimtext.
-		//var keybuf = Module._malloc(key.length * key.BYTES_PER_ELEMENT);
-		//var plaintextbuf = Module._malloc(plaintext.length * plaintext.BYTES_PER_ELEMENT);
-		// var ciphertextbuf = Module._malloc(ciphertext.length * ciphertext.BYTES_PER_ELEMENT);
-		//ciphertext = Module._malloc(plaintextlength * 4);
-
-		// Setzte Schlüssel, Klartext und Geheimtext in den allokierten Speicher.
-		// Module.HEAPU32.set(key, keybuf / key.BYTES_PER_ELEMENT);
-		// Module.HEAPU32.set(plaintext, plaintextbuf / plaintext.BYTES_PER_ELEMENT);
-		//Module.HEAPU32.set(ciphertext, ciphertextbuf / ciphertext.BYTES_PER_ELEMENT);
 
 		ciphertext = new Uint32Array(plaintextlength);
 		// Rufe die Verschlüsselung auf.
 		Module.ccall('rc4', null, ['number', 'number', 'number', 'number'], [key, keylength, plaintext, plaintextlength]);
 
-		// Lese den Geheimtext aus dem Speicher aus.
-		//var pos = ciphertextbuf / ciphertext.BYTES_PER_ELEMENT;
-		//ciphertext.set(Module.HEAPU32.subarray(pos, pos + plaintextlength));
 
 		// Speicher freigeben
 		Module._free(key);
@@ -111,10 +96,10 @@
 		var time5 = performance.now();
 
 
-		document.getElementById("time12").innerHTML = (time2 - time1) + " ms";
-		document.getElementById("time23").innerHTML = (time3 - time2) + " ms";
-		document.getElementById("time34").innerHTML = (time4 - time3) + " ms";
-		document.getElementById("time45").innerHTML = (time5 - time4) + " ms";
+		document.getElementById("time12").innerHTML = Math.round((time2 - time1)) + " ms";
+		document.getElementById("time23").innerHTML = Math.round((time3 - time2)) + " ms";
+		document.getElementById("time34").innerHTML = Math.round((time4 - time3)) + " ms";
+		document.getElementById("time45").innerHTML = Math.round((time5 - time4)) + " ms";
 
 	}
 </script>
