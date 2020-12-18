@@ -137,25 +137,15 @@
 
 	<body>
 	<h2>RC4 Implementierung mit Clang-LLVM-WebAssembly und hoher Interaktion zwischen JS und Wasm</h2>
+
 	<h3>Bedienungsanleitung</h3>
 	<p>
-		Für schnelle Ergebnisse auf den grünen Button "Ver-/Entschlüsseln" klicken.
+		Auf den grünen Button "Ver-/Entschlüsseln" klicken.
 		Die Standardwerte sind korrekt eingestellt.
-	</p>
-	<p style="color:grey">
-		Anleitung für individuelle Ergebnisse:
-		<br />
-		1. Den Schlüssel als Hexwerte eingeben. Die einzelnen Bytes werden mit
-		einem Leerzeichen getrennt: Beispiel: 01 02 03 04 05
-		<br />
-		2. Die Länge des zu verschlüsselnden Textes auswählen. Die Länge wird in Byte
-		angegeben.
-		<br />
-		3. Auf verschlüsseln drücken und die Ausführungszeiten in der Tabelle betrachten.
+		Die gelb hinterlegten Felder werden mit Ausgaben gefüllt.
 	</p>
 
 	<h3>Parametereingabe</h3>
-
 
 	<form>
 		<p>Schlüssel (1 Byte Hex Werte, Leerzeichen separiert). <span style="color:grey">Intern wird jedes Byte
@@ -178,7 +168,7 @@
 	<input type="button" style="background-color:lightgreen" id="btn_encrypt" value="Ver-/Entschlüsseln" onclick="doIt()">
 	<span style="color:grey">
 		Für vergleichbare Ergebnisse nach jedem Ver-/Entschlüsseln die Seite neu laden. Ansonsten wird
-		Speicher wiederverwendet was die Lauzeit künstlich beschleunigt. Die Ergebnisse sind trotzdem korrekt.
+		Speicher wiederverwendet, was die Laufzeit künstlich beschleunigt.
 	</span>
 	</form>
 
