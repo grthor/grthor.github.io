@@ -1,0 +1,1 @@
+function rc4(a,b){for(var c,d=new Uint8Array(256),e=0,f=0,g=a.length,h=b.length,e=0;256>e;e++)d[e]=e;for(e=0;256>e;e++)f=(f+d[e]+a[e%g])%256,c=d[e],d[e]=d[f],d[f]=c;e=0,f=0,ciphertext=new Uint8Array(b);for(var k=0;k<h;k++)e=(e+1)%256,f=(f+d[e])%256,c=d[e],d[e]=d[f],d[f]=c,ciphertext[k]=b[k]^d[(d[e]+d[f])%256];return ciphertext}

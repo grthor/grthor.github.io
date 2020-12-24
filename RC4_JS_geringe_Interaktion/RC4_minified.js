@@ -1,0 +1,1 @@
+function rc4(r,t){var e,h=[],c=0,n=0,f=r.length,i=t.length;for(c=0;c<256;c++)h[c]=c;for(c=0;c<256;c++)n=(n+h[c]+r[c%f])%256,e=h[c],h[c]=h[n],h[n]=e;c=0,n=0,ciphertext=[];for(var o=0;o<i;o++)n=(n+h[c=(c+1)%256])%256,e=h[c],h[c]=h[n],h[n]=e,ciphertext.push(t[o]^h[(h[c]+h[n])%256]);return ciphertext}

@@ -1,1 +1,0 @@
-C:\Users\thorb\emsdk\upstream\bin\wasm-dis.exe .\a.out.wasm -o .\a.out.wat

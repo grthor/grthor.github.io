@@ -1,0 +1,1 @@
+function rc4(a,b){for(var c,d=[],e=0,f=0,g=a.length,h=b.length,e=0;256>e;e++)d[e]=e;for(e=0;256>e;e++)f=(f+d[e]+a[e%g])%256,c=d[e],d[e]=d[f],d[f]=c;e=0,f=0;for(var k=0;k<h;k++)e=(e+1)%256,f=(f+d[e])%256,c=d[e],d[e]=d[f],d[f]=c,showNumberInGUI(b[k]^d[(d[e]+d[f])%256])}

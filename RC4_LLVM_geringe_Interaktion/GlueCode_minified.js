@@ -1,0 +1,1 @@
+var mymemory=new WebAssembly.Memory({initial:256,maximum:32768}),importObject={env:{memory:mymemory}};function initializeWebAssembly(){return WebAssembly.instantiateStreaming(fetch("RC4C_ohne_include.wasm"),importObject)}function getBuffer(){return mymemory.buffer}function growMemory(e){mymemory.grow(e)}

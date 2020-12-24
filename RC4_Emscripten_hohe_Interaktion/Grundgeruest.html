@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Emscripten WebAssembly</title>
+
+<script async type="text/javascript" src="myLibrary.js"></script>
+
+<script src="RC4C_ohne_include.js"></script>
+
+<script type="text/javascript">
+
+
+	var key;
+	var keylength;
+	var plaintext;
+	var plaintextlength;
+	var ciphertext;
+
+	// Zähler der genutzt wird, die Elemente an der richtigen Stelle
+	// im Ausgabe Array zu speichern.
+	var outputElementCounter = 0;
+
+	function showNumberInGUI(number) {
+		// ciphertext.push(number);
+		ciphertext[outputElementCounter] = number;
+		outputElementCounter++;
+	}
+
+
+	function readKeyFromGUI() {
+		var k = document.getElementById("key_input").value;
+
+		var keyStringArray = k.split(/(\s+)/).filter( e => e.trim().length > 0);
+		var keyIntArray = keyStringArray.map(t => parseInt(t, 10));
+		keylength = keyIntArray.length;
+		// Allocate memory for the heap
+		key = Module._malloc(keylength * 4);
+		// Write the key to the heap.
+		Module.HEAPU32.set(keyIntArray, key / 4);
+	}
+
+	function readAndCreatePlaintext() {
+		var length = document.getElementById("plaintext_length_input").value;
+		plaintextlength = parseInt(length);
+		var tempPlaintext = new Uint32Array(plaintextlength);
+		plaintext = Module._malloc(plaintextlength * 4);
+		// Erzeuge einen zufälligen Schlüsseltext
+		for (var i = 0; i < plaintextlength; i++) {
+			// plaintext[i] = Math.random() * 255; // Zufällige Werte zwischen 0 und 255.
+			//Module.HEAP32.set((Math.random() * 255), (plaintext + (i * 4)) / 4);
+			tempPlaintext[i] = Math.random() * 255; // Zufällige Werte zwischen 0 und 255.
+
+		}
+		Module.HEAP32.set(tempPlaintext, plaintext / 4);
+	}
+
+	function encrypt() {
+
+
+		ciphertext = new Uint32Array(plaintextlength);
+		// Rufe die Verschlüsselung auf.
+		Module.ccall('rc4', null, ['number', 'number', 'number', 'number'], [key, keylength, plaintext, plaintextlength]);
+
+
+		// Speicher freigeben
+		Module._free(key);
+		Module._free(plaintext);
+	}
+
+
+	function printResultToGUI() {
+		// Lese den Geheimtext aus dem Speicher aus.
+		var output = "";
+		var bytesToOutput = Math.min(16, plaintextlength);
+		//var outputArray = new Uint32Array(Module.HEAPU32.buffer, ciphertext, bytesToOutput);
+		for (var i = 0; i < bytesToOutput; i++) {
+			output += ciphertext[i].toString(16).toUpperCase() + " ";
+		}
+		document.getElementById("output").innerHTML = output;
+		//Module._free(ciphertext);
+	}
+
+	function doIt() {
+
+		outputElementCounter = 0;
+
+		var time1 = performance.now();
+		readKeyFromGUI();
+		var time2 = performance.now();
+		readAndCreatePlaintext();
+		var time3 = performance.now();
+		encrypt();
+		var time4 = performance.now();
+		printResultToGUI();
+		var time5 = performance.now();
+
+
+		document.getElementById("time12").innerHTML = Math.round((time2 - time1)) + " ms";
+		document.getElementById("time23").innerHTML = Math.round((time3 - time2)) + " ms";
+		document.getElementById("time34").innerHTML = Math.round((time4 - time3)) + " ms";
+		document.getElementById("time45").innerHTML = Math.round((time5 - time4)) + " ms";
+
+	}
+</script>
+
+</head>
+
+	<body>
+	<h2>RC4 Implementierung mit Emscripten-WebAssembly und hoher Interaktion zwischen JS und Wasm</h2>
+
+	<h3>Bedienungsanleitung</h3>
+	<p>
+		Auf den grünen Button "Ver-/Entschlüsseln" klicken.
+		Die Standardwerte sind korrekt eingestellt.
+		Die gelb hinterlegten Felder werden mit Ausgaben gefüllt.
+	</p>
+
+	<h3>Parametereingabe</h3>
+
+	<form>
+	<p>Schlüssel (1 Byte Hex Werte, Leerzeichen separiert). <span style="color:grey">Intern wird jedes Byte
+	als uint32 verarbeitet. Der Schlüssel benötigt also viermal so viel Speicherplatz
+	wie hier angegeben.</span><br />
+	<textarea id="key_input" rows="3" cols="50">01 02 03 04 05</textarea></p>
+
+	<p>Klartextlänge in Byte (Standard 128 Mebibyte). <span style="color:grey">Intern wird jedes Byte
+	als uint32 verarbeitet. Der Klartext benötigt also viermal so viel Speicher (512 Mebibyte)
+	wie der Wert den man eingibt.</span></br>
+	<input type="number" id="plaintext_length_input" value="134217728" min="0"></p>
+
+	<div style="color: gray; " id="PlainHexRepresentation"></div>
+
+	<span style="color:red">Die Seite blockiert nach dem Aufruf der Verschlüsselung.
+		Mit den Standardwerten sind Wartezeiten von bis zu 15 Sekunden normal.
+	</span>
+	<br />
+
+	<input type="button" style="background-color:lightgreen" id="btn_encrypt" value="Ver-/Entschlüsseln" onclick="doIt()">
+	<span style="color:grey">
+		Für vergleichbare Ergebnisse nach jedem Ver-/Entschlüsseln die Seite neu laden. Ansonsten wird
+		Speicher wiederverwendet, was die Laufzeit künstlich beschleunigt.
+	</span>
+	</form>
+
+	<h3>Ausgabe</h3>
+<table border="1">
+  <tr>
+    <th>Ausgeführte Aufgabe</th>
+		<th>Umgebung</th>
+    <th>benötigte Zeit</th>
+  </tr>
+  <tr>
+    <td>Schlüssel einlesen und konvertieren</td>
+		<td>JavaScript</td>
+	<td id="time12" style="background-color:yellow"></div></td>
+   </tr>
+	<tr>
+		<td>Zufälligen Klartext erzeugen</td>
+		<td>JavaScript</td>
+		<td id="time23" style="background-color:yellow"></td>
+	</tr>
+	<tr>
+		<td>Text verschlüsseln</td>
+		<td>Emscripten-WebAssembly</td>
+		<td id="time34" style="background-color:yellow"></td>
+	</tr>
+	<tr>
+		<td>Ergebnis in GUI ausgeben</td>
+		<td>JavaScript</td>
+		<td id="time45" style="background-color:yellow"></td>
+	</tr>
+</table>
+
+<p>Die ersten Bytes des Geheimtextes:</p>
+<div id="output" style="background-color:yellow">               </div>
+<p style="color:grey">Der komplette Geheimtext wird bewusst nicht ausgegeben,
+da er die Seite zu lange blockieren lässt.</p>
+
+	</body>
+</html>
