@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Emscripten WebAssembly</title>
+<title>Emscripten-WebAssembly</title>
 
 <script src="RC4C_ohne_include.js"></script>
 
@@ -98,7 +98,7 @@
 </head>
 
 	<body>
-	<h2>RC4 Implementierung mit Emscripten-WebAssembly und geringer GUI-Interaktion</h2>
+	<h2>RC4-Implementierung mit Emscripten-WebAssembly und geringer Interaktion zwischen Wasm und JS</h2>
 
 	<h3>Bedienungsanleitung</h3>
 	<p>
@@ -115,10 +115,10 @@
 	wie hier angegeben.</span><br />
 	<textarea id="key_input" rows="3" cols="50">01 02 03 04 05</textarea></p>
 
-	<p>Klartextlänge in Byte (Standard 128 Mebibyte). <span style="color:grey">Intern wird jedes Byte
-	als uint32 verarbeitet. Der Klartext benötigt also viermal so viel Speicher (512 Mebibyte)
+	<p>Klartextlänge in Byte (Standard 64 Mebibyte). <span style="color:grey">Intern wird jedes Byte
+	als uint32 verarbeitet. Der Klartext benötigt also viermal so viel Speicher (256 Mebibyte)
 	wie der Wert den man eingibt.</span></br>
-	<input type="number" id="plaintext_length_input" value="134217728" min="0"></p>
+	<input type="number" id="plaintext_length_input" value="67108864" min="0"></p>
 
 	<div style="color: gray; " id="PlainHexRepresentation"></div>
 
