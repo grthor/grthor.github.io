@@ -7,6 +7,7 @@
 	const width = 400;
 	const height = 400;
 	const canvas = document.getElementById("demo-canvas");
+	var counter = 0;
 
 
 	WebAssembly.instantiateStreaming(fetch("./bare_metal_wasm.wasm"))
@@ -32,9 +33,16 @@
 		setInterval(function() {
 			obj.instance.exports.go();
 			// Log the colors calculated by WebAssembly
-			console.log("r:"+image.data[0]+"\tg:"+image.data[1]+"\tb:"+image.data[2]+"\ta:"+image.data[3]);
+			// console.log("r:"+image.data[0]+"\tg:"+image.data[1]+"\tb:"+image.data[2]+"\ta:"+image.data[3]);
 			ctx.putImageData(image, 0, 0);
+			counter++;
 		}, 1);
+		
+		setInterval(function() {
+		document.getElementById("fps").innerHTML = counter;
+			//console.log(counter);
+			counter = 0;
+		}, 1000);
 		
 	});
 
@@ -45,6 +53,10 @@
 
 	<div id="links" style="float: left; width: 450px">
 	<canvas id="demo-canvas"></canvas>
+	</br>
+	
+	<b><b id="fps"></b> FPS</b>
+	
 	</div>
 	
 	</div id="rechts">
